@@ -1,7 +1,6 @@
 #include <iostream>
-#include <string>
 #include <cstring>
-#include <cstdlib>
+
 using namespace std;
 
 class Author
@@ -13,70 +12,65 @@ class Author
 
 public:
     Author(string n)
-        :name(n)
+        :name(n), capacity(2),numOfBooks(0)
     {
-        this->capacity=12;
-        this->numOfBooks=0;
-        this->books = new string[capacity];
+        books = new string[capacity];
     }
     Author(const Author& other)
+        :name(other.name),capacity(other.capacity), numOfBooks(other.numOfBooks)
     {
-        this->books = (string*)malloc(sizeof(string)*other.capacity);
-        memcpy(this->books, other.books, sizeof(string)*other.capacity);
-        capacity =other.capacity;
-        numOfBooks = other.numOfBooks;
+        books = new string [other.capacity];
+        memcpy(books, other.books, sizeof(string)*other.capacity);
     }
 
     void addBook(const string& book)
     {
-        numOfBooks++;
-        if (numOfBooks > capacity)
+        if (numOfBooks == capacity)
         {
-           // capacity *= 2;
-            doubleSize(this->books,this->capacity);
-            this->books = (string*)realloc(this->books, sizeof(string)*capacity);
+            doubleSize();
         }
-
-        this->books[numOfBooks-1] = book;
+        numOfBooks++;
+        books[numOfBooks-1] = book;
     }
 
-    string* doubleSize(string *arr,int length)
+    void doubleSize()
     {
-        string *arr2= new string[length*2];
-        for(int i=0; i<arr->length(); i++)
-            arr2[i]=arr[i];
-        delete arr;
-        return arr2;
+        string *tempBooks= new string[capacity*2];
+        for(int i=0; i<numOfBooks; i++)
+            tempBooks[i]=books[i];
+        delete[] books;
+        capacity = capacity*2;
+        books = tempBooks;
     }
 
     void info() const
     {
-        cout<< this->name<< ": ";
-        for (int i=0; i<this->numOfBooks; i++)
-            cout<<this->books[i]<<" ";
+        cout<< name<< ": ";
+        for (int i=0; i<numOfBooks; i++)
+            cout<<books[i]<<" ";
         cout<< endl;
     }
 
     void changeName(const std::string& n)
     {
-        this->name = n;
+        name = n;
     }
     Author& operator=(const Author& other)
     {
         if (this==&other)
             return *this;
-        this->name = other.name;
 
-        memcpy(books, other.books, sizeof(string)*sizeof(other.books));
-        this->books = other.books;
+        name = other.name;
+        delete[] books;
+        books = new string [other.capacity];
+        memcpy(books, other.books, sizeof(string)*other.capacity);
+        capacity = other.capacity;
+        numOfBooks = other.numOfBooks;
+        return *this;
     }
     ~Author()
     {
-        if (books)
-        {
-            free(books); // Freeing memory
-            books = NULL;
-        }
+        delete[] books;
     };
 
 };
